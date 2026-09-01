@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>La Balanza de la Verdad - Caso 5</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#111827',
+                            light: '#f9f8f6',
+                            muted: '#6b7280'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-color: #f9f8f6;
+            --text-dark: #111827;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            overflow: hidden;
+            overscroll-behavior: none; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #screen-balanza {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .evidence-card {
+            touch-action: none; 
+            cursor: grab;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s;
+            border-left-width: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .evidence-card:active {
+            cursor: grabbing;
+        }
+
+        .evidence-card.dragging {
+            position: fixed;
+            z-index: 1000;
+            pointer-events: none; 
+            transform: scale(1.05) rotate(-2deg);
+            box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.15), 0 15px 15px -5px rgba(0, 0, 0, 0.1);
+            opacity: 0.95;
+        }
+
+        #physics-canvas-container {
+            position: relative;
+            background: linear-gradient(to bottom, #ffffff, #f3f4f6);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+            flex: 1;
+            min-height: 0; 
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        #thermometer-container {
+            position: absolute;
+            top: 5%;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .thermo-tube {
+            width: 30px;
+            height: 100%;
+            background: #e5e7eb;
+            border: 3px solid var(--text-dark);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .thermo-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background-color: #9ca3af; 
+            transition: height 1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.5s ease;
+        }
+
+        .thermo-mark {
+            position: absolute;
+            width: 100%;
+            border-bottom: 2px solid rgba(0,0,0,0.15);
+            left: 0;
+            z-index: 2;
+        }
+        
+        .thermo-label {
+            position: absolute;
+            right: -30px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #6b7280;
+            transform: translateY(50%);
+        }
+
+        .modal-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-out;
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
+        
+        .modal-body-scroll {
+            overflow-y: auto;
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="screen-balanza" class="p-2 md:p-4 pb-0">
+        
+        <header class="flex items-center justify-between pb-2 mb-2 border-b border-gray-200 flex-shrink-0">
+            <div>
+                <h1 class="font-serif text-lg md:text-2xl font-bold text-brand-dark leading-tight" id="active-case-title">Caso #5</h1>
+                <p class="font-sans text-brand-muted text-xs md:text-sm">Evaluador Dinámico de Evidencia — Análisis Forense</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="index.html" class="flex items-center gap-1 text-xs md:text-sm font-semibold text-gray-500 hover:text-brand-dark transition-colors bg-gray-100 hover:bg-gray-200 py-1.5 px-3 rounded-lg cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <span class="hidden md:inline">Menú Principal</span>
+                </a>
+                <button onclick="resetScale()" class="flex items-center gap-1 text-xs md:text-sm font-semibold text-gray-500 hover:text-brand-dark transition-colors bg-gray-100 hover:bg-gray-200 py-1.5 px-3 rounded-lg cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span class="hidden md:inline">Reiniciar</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Contenedor Principal con inventario angosto para maximizar la balanza -->
+        <div class="flex flex-col md:flex-row gap-2 md:gap-4 flex-1 min-h-0 w-full mb-2">
+            
+            <div class="w-full md:w-1/6 lg:w-1/6 flex flex-row md:flex-col gap-2 p-1 relative flex-shrink-0" id="inventory-zone">
+                <!-- Tarjetas inyectadas por JS -->
+            </div>
+
+            <!-- Zona de Física y Termómetro -->
+            <div id="physics-canvas-container">
+                <div id="thermometer-container">
+                    <div class="thermo-tube">
+                        <div class="thermo-mark" style="bottom: 20%;"><span class="thermo-label">2.0</span></div>
+                        <div class="thermo-mark" style="bottom: 40%;"><span class="thermo-label">4.0</span></div>
+                        <div class="thermo-mark" style="bottom: 60%;"><span class="thermo-label">6.0</span></div>
+                        <div class="thermo-mark" style="bottom: 86%;"><span class="thermo-label">8.6</span></div>
+                        <div class="thermo-fill" id="thermo-fill"></div>
+                    </div>
+                </div>
+
+                <div class="absolute inset-0 flex items-start justify-center pointer-events-none z-20 pt-4" id="drop-hint" style="opacity: 0;">
+                    <span class="bg-white/95 px-4 py-1.5 rounded-full text-[10px] md:text-xs font-semibold text-brand-muted shadow-sm tracking-widest uppercase border border-gray-100 transition-opacity duration-300">
+                        Arrastra las evidencias a la balanza
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Justificación más angosto -->
+    <div id="abstract-modal" class="modal-overlay fixed inset-0 bg-brand-dark/70 flex items-center justify-center p-4">
+        <div class="modal-content bg-white rounded-xl shadow-2xl max-w-xs md:max-w-sm w-full pointer-events-auto">
+            <div class="h-2 w-full rounded-t-xl" id="abstract-color-bar"></div>
+            <div class="p-4 md:p-5 flex flex-col flex-1 min-h-0">
+                <span id="abstract-category" class="text-xs font-bold uppercase tracking-wider mb-2">Categoría</span>
+                <h3 id="abstract-title" class="font-serif text-base md:text-lg font-bold text-brand-dark mb-2">Justificación de la Evidencia</h3>
+                
+                <div class="modal-body-scroll pr-1 text-xs md:text-sm text-gray-700 leading-relaxed space-y-2" id="abstract-text">
+                    <!-- Texto inyectado -->
+                </div>
+                <div class="mt-3 text-center text-[10px] text-gray-400 font-medium">
+                    Toca cualquier parte para cerrar
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="verdict-modal" class="modal-overlay fixed inset-0 bg-brand-light/95 flex items-center justify-center p-4">
+        <div class="modal-content bg-white border-t-8 border-gray-800 rounded-xl shadow-2xl p-6 md:p-8 max-w-xl w-full text-center relative pointer-events-auto" id="verdict-card">
+            
+            <span class="text-brand-muted font-bold tracking-widest uppercase text-[10px] md:text-xs mb-2 block">Veredicto Final del Caso 5</span>
+            <h2 id="verdict-title" class="font-serif text-2xl md:text-4xl font-black text-brand-dark mb-4 leading-tight">Calculando...</h2>
+            
+            <div class="inline-flex items-center bg-gray-50 border border-gray-100 rounded-full px-4 py-2 mb-4 shadow-inner">
+                <span class="text-[10px] md:text-xs text-gray-500 uppercase font-semibold tracking-wide">Puntuación:</span>
+                <span id="verdict-score" class="font-black text-xl md:text-2xl ml-2">0.0 / 10.0</span>
+            </div>
+
+            <p id="verdict-desc" class="text-gray-700 mb-6 leading-relaxed text-xs md:text-sm px-2">Descripción...</p>
+            
+<div class="flex justify-center gap-3">
+                <a href="index.html" class="bg-gray-200 text-gray-800 font-semibold py-2.5 px-6 rounded-lg hover:bg-gray-300 transition-colors shadow-sm text-sm cursor-pointer">
+                    Volver al Menú
+                </a>
+                <button onclick="resetScale()" class="bg-brand-dark text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-gray-800 transition-colors shadow-md text-sm cursor-pointer">
+                    Reevaluar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const VERDICT_CATEGORIES = [
+            { level: 0, title: "Información Insuficiente", min: 0, max: 20, color: "#9ca3af", desc: "No existe información suficiente para comprobar los hechos o evaluar el caso." },
+            { level: 1, title: "No Sustentado", min: 21, max: 40, color: "#4ade80", desc: "La información disponible no permite sustentar que el caso constituya corrupción." },
+            { level: 2, title: "Irregularidad o Riesgo", min: 41, max: 60, color: "#facc15", desc: "Hay anomalías o riesgos de corrupción en la gestión pública, pero no evidencia suficiente de un acto de corrupción consumado." },
+            { level: 3, title: "Evidencia Consistente", min: 61, max: 85, color: "#f97316", desc: "Existe evidencia documental, financiera e institucional suficiente para identificar elementos altamente consistentes con un posible acto de corrupción pública." },
+            { level: 4, title: "Determinado", min: 86, max: 100, color: "#ef4444", desc: "Un puntaje tan alto confirma que la afirmación de catalogar este caso como un 'hallazgo en materia de corrupción' es fáctica y documentalmente verídica bajo estándares internacionales." }
+        ];
+
+        // Datos del Caso 5 basados en el documento de texto
+        const CASE_5_DATA = [
+            {
+                id: "c5_1", category: "1. Conducta", color: "#ef4444", weight: 16,
+                abstractHtml: "Se investiga la alteración de documentos públicos y abuso de funciones para modificar las reglas de evaluación de una selección de gran cuantía. Existe certeza probatoria mediante peritaje forense informático de la Procuraduría, que demostró el desfase en los metadatos de carga de las condiciones. El proceso fue cancelado preventivamente antes de firmar contrato o desviar fondos."
+            },
+            {
+                id: "c5_2", category: "2. Contratación", color: "#3b82f6", weight: 8,
+                abstractHtml: "Se detectó la manipulación de las condiciones precontractuales mediante una adenda extemporánea que impuso requisitos financieros restrictivos, limitando la libre competencia del mercado. Debido a la oportuna suspensión preventiva y posterior resolución de cancelación definitiva del proceso de selección, no se firmó ningún contrato ni se ejecutó obra pública alguna."
+            },
+            {
+                id: "c5_3", category: "3. Redes", color: "#8b5cf6", weight: 7,
+                abstractHtml: "Se evidenció la presión directa del director de la entidad, quien actuó de forma unipersonal desoyendo activamente las objeciones formales de los equipos técnicos y jurídicos de planta. Pese a identificarse el actuar de este funcionario con calidad de Persona Políticamente Expuesta (PEP), las pruebas documentales no demuestran vínculos comerciales o familiares con firmas proponentes."
+            },
+            {
+                id: "c5_4", category: "4. Finanzas", color: "#10b981", weight: 0,
+                abstractHtml: "La dimensión no registra alertas debido a que el proceso de selección fue cancelado antes de su adjudicación. Al no haberse consolidado un contratista privado ni haberse ejecutado pagos, desembolsos o giros presupuestales, no existen consorcios, empresas fachada, ni flujos transaccionales bajo sospecha en este hallazgo."
+            },
+            {
+                id: "c5_5", category: "5. Control", color: "#f59e0b", weight: 10,
+                abstractHtml: "El portal transaccional SECOP II fue manipulado al cargar una adenda con metadatos alterados temporalmente, eludiendo las advertencias por escrito de los subdirectores de planta. Sin embargo, las salvaguardas internas reaccionaron con éxito posterior: la junta directiva removió al director del cargo y la nueva administración canceló definitivamente el proceso para proteger el erario."
+            }
+        ];
+
+        let engine, render, runner, world;
+        let scalePan, scaleSpring;
+        let totalWeight = 0;
+        let blocksDropped = 0;
+        
+        let activeDragEl = null;
+        let cloneEl = null;
+        let initialOffsetX, initialOffsetY;
+        let modalJustOpened = false;
+
+        const inventoryZone = document.getElementById('inventory-zone');
+        const canvasContainer = document.getElementById('physics-canvas-container');
+
+        function resetScale() {
+            document.getElementById('verdict-modal').classList.remove('active');
+            
+            totalWeight = 0;
+            blocksDropped = 0;
+            
+            const fillEl = document.getElementById('thermo-fill');
+            fillEl.style.height = '0%';
+            fillEl.style.backgroundColor = '#9ca3af';
+
+            const hint = document.getElementById('drop-hint');
+            if (hint) hint.style.opacity = '1';
+
+            buildInventory();
+            initPhysics();
+        }
+
+        function buildInventory() {
+            inventoryZone.innerHTML = ''; 
+            
+            CASE_5_DATA.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'evidence-card bg-white rounded shadow-sm border border-gray-200 flex-1 min-w-[70px] min-h-[75px] md:min-h-[95px] relative';
+                card.style.borderLeftColor = item.color;
+                
+                card.dataset.weight = item.weight;
+                card.dataset.id = item.id;
+                card.dataset.color = item.color;
+                
+                const shortTitle = item.category.split('.')[1].trim(); 
+                
+                card.innerHTML = `
+                    <div class="p-2 md:p-3 h-full flex flex-col justify-between">
+                        <div class="text-xs md:text-base font-extrabold uppercase tracking-tight w-full" style="color: ${item.color}" title="${item.category}">${shortTitle}</div>
+                        <div class="text-[9px] md:text-xs text-gray-500 font-semibold text-center flex items-center justify-center gap-1 mt-1 bg-gray-50 py-1 rounded">
+                            <span>Doble clic para ver</span>
+                        </div>
+                    </div>
+                `;
+
+                // Gestor de toque / pulsación larga para abrir el modal y gestor de arrastre
+                setupCardInteractions(card, item);
+
+                inventoryZone.appendChild(card);
+            });
+        }
+
+        function setupCardInteractions(card, item) {
+            let lastTapTime = 0;
+
+            const onPointerDown = (e) => {
+                if (e.button !== 0 && e.type !== 'touchstart' && e.type !== 'pointerdown') return;
+                
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTapTime;
+                
+                // 1. Detectar doble clic o doble toque rápido (menos de 300ms)
+                if (tapLength < 300 && tapLength > 0) {
+                    if (navigator.vibrate) navigator.vibrate(40);
+                    showAbstract(item.id);
+                    lastTapTime = 0; // Reinicia el contador para evitar bucles
+                    return;
+                }
+                
+                lastTapTime = currentTime;
+                
+                // Guardar coordenadas iniciales para detectar el arrastre
+                const startX = e.clientX || (e.touches && e.touches[0].clientX);
+                const startY = e.clientY || (e.touches && e.touches[0].clientY);
+                let dragStarted = false;
+
+                const onPointerMove = (moveEvent) => {
+                    if (dragStarted) return;
+                    
+                    const mx = moveEvent.clientX || (moveEvent.touches && moveEvent.touches[0].clientX);
+                    const my = moveEvent.clientY || (moveEvent.touches && moveEvent.touches[0].clientY);
+                    
+                    // 2. Si se sostiene y se mueve más de 10 píxeles, inicia el arrastre al instante
+                    if (Math.abs(mx - startX) > 10 || Math.abs(my - startY) > 10) {
+                        dragStarted = true;
+                        handleDragStart(e, card); // Pasa el evento inicial para calcular el anclaje exacto
+                        cleanup();
+                    }
+                };
+
+                const onPointerUp = () => {
+                    cleanup();
+                };
+
+                const cleanup = () => {
+                    document.removeEventListener('pointermove', onPointerMove);
+                    document.removeEventListener('pointerup', onPointerUp);
+                    document.removeEventListener('touchmove', onPointerMove);
+                    document.removeEventListener('touchend', onPointerUp);
+                };
+
+                document.addEventListener('pointermove', onPointerMove, {passive: false});
+                document.addEventListener('pointerup', onPointerUp);
+                document.addEventListener('touchmove', onPointerMove, {passive: false});
+                document.addEventListener('touchend', onPointerUp);
+            };
+
+            card.addEventListener('pointerdown', onPointerDown);
+        }
+
+        function showAbstract(id) {
+            const data = CASE_5_DATA.find(i => i.id === id);
+            if(!data) return;
+
+            document.getElementById('abstract-category').innerText = data.category;
+            document.getElementById('abstract-category').style.color = data.color;
+            document.getElementById('abstract-text').innerHTML = data.abstractHtml;
+            document.getElementById('abstract-color-bar').style.backgroundColor = data.color;
+
+            const modal = document.getElementById('abstract-modal');
+            modal.classList.add('active');
+            
+            modalJustOpened = true;
+            setTimeout(() => { modalJustOpened = false; }, 250);
+        }
+
+        function closeAbstract() {
+            document.getElementById('abstract-modal').classList.remove('active');
+        }
+
+        // Cerrar modal al tocar cualquier parte de la pantalla tras abrirlo
+        document.addEventListener('pointerdown', (e) => {
+            const modal = document.getElementById('abstract-modal');
+            if (modal.classList.contains('active') && !modalJustOpened) {
+                closeAbstract();
+            }
+        });
+
+        function hexToRgba(hex, alpha) {
+            let r = parseInt(hex.slice(1, 3), 16),
+                g = parseInt(hex.slice(3, 5), 16),
+                b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        function handleDragStart(e, cardEl) {
+            activeDragEl = cardEl;
+            const rect = activeDragEl.getBoundingClientRect();
+            
+            cloneEl = activeDragEl.cloneNode(true);
+            cloneEl.classList.add('dragging');
+            
+            cloneEl.style.width = `${rect.width}px`;
+            cloneEl.style.height = `${rect.height}px`;
+            cloneEl.style.left = `${rect.left}px`;
+            cloneEl.style.top = `${rect.top}px`;
+            
+            document.body.appendChild(cloneEl);
+            activeDragEl.style.opacity = '0.3';
+
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+            initialOffsetX = clientX - rect.left;
+            initialOffsetY = clientY - rect.top;
+
+            document.addEventListener('pointermove', handleDragMove, {passive: false});
+            document.addEventListener('pointerup', handleDragEnd);
+            document.addEventListener('touchmove', handleDragMove, {passive: false});
+            document.addEventListener('touchend', handleDragEnd);
+        }
+
+        function handleDragMove(e) {
+            if (!cloneEl) return;
+            e.preventDefault();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            if (clientX === undefined || clientY === undefined) return;
+
+            const x = clientX - initialOffsetX;
+            const y = clientY - initialOffsetY;
+            cloneEl.style.left = `${x}px`;
+            cloneEl.style.top = `${y}px`;
+        }
+
+        function handleDragEnd(e) {
+            document.removeEventListener('pointermove', handleDragMove);
+            document.removeEventListener('pointerup', handleDragEnd);
+            document.removeEventListener('touchmove', handleDragMove);
+            document.removeEventListener('touchend', handleDragEnd);
+
+            if (!cloneEl || !activeDragEl) return;
+
+            const cloneRect = cloneEl.getBoundingClientRect();
+            const canvasRect = canvasContainer.getBoundingClientRect();
+            
+            const dropCenterX = cloneRect.left + cloneRect.width / 2;
+            const dropCenterY = cloneRect.top + cloneRect.height / 2;
+
+            const isInside = 
+                dropCenterX > canvasRect.left && 
+                dropCenterX < canvasRect.right &&
+                dropCenterY > canvasRect.top && 
+                dropCenterY < canvasRect.bottom;
+
+            if (isInside) {
+                const weight = parseInt(activeDragEl.dataset.weight) || 0;
+                const color = activeDragEl.dataset.color || '#9ca3af';
+                
+                const canvasCenterX = canvasRect.width / 2;
+                const panWidthApprox = Math.min(320, canvasRect.width * 0.85);
+                const randomOffset = (Math.random() - 0.5) * (panWidthApprox * 0.65); 
+                const spawnX = canvasCenterX + randomOffset;
+                const spawnY = Math.max(dropCenterY - canvasRect.top, 20); 
+                
+                spawnPhysicsCube(spawnX, spawnY, weight, color);
+                
+                cloneEl.remove();
+                activeDragEl.style.visibility = 'hidden';
+                
+                const hint = document.getElementById('drop-hint');
+                if (hint) hint.style.opacity = '0';
+                
+                processProgress(weight);
+            } else {
+                const origRect = activeDragEl.getBoundingClientRect();
+                cloneEl.style.transition = 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                cloneEl.style.left = `${origRect.left}px`;
+                cloneEl.style.top = `${origRect.top}px`;
+                cloneEl.style.transform = 'scale(1) rotate(0deg)';
+                
+                const currentClone = cloneEl;
+                const currentOriginal = activeDragEl;
+                
+                setTimeout(() => {
+                    if (currentClone && currentClone.parentNode) currentClone.remove();
+                    if (currentOriginal) currentOriginal.style.opacity = '1';
+                }, 300);
+            }
+
+            cloneEl = null;
+            activeDragEl = null;
+        }
+
+        function initPhysics() {
+            const Engine = Matter.Engine,
+                  Render = Matter.Render,
+                  Runner = Matter.Runner,
+                  Bodies = Matter.Bodies,
+                  Body = Matter.Body,
+                  Composite = Matter.Composite,
+                  Constraint = Matter.Constraint,
+                  Events = Matter.Events;
+
+            if (engine) {
+                Render.stop(render);
+                Runner.stop(runner);
+                Engine.clear(engine);
+                if (canvasContainer.querySelector('canvas')) {
+                    canvasContainer.querySelector('canvas').remove();
+                }
+            }
+
+            engine = Engine.create();
+            world = engine.world;
+
+            const width = Math.max(canvasContainer.clientWidth, 200);
+            const height = Math.max(canvasContainer.clientHeight, 300);
+
+            render = Render.create({
+                element: canvasContainer,
+                engine: engine,
+                options: {
+                    width: width,
+                    height: height,
+                    wireframes: false,
+                    background: 'transparent',
+                    pixelRatio: window.devicePixelRatio || 1
+                }
+            });
+
+            const cx = width / 2;
+            const panWidth = Math.min(320, width * 0.85); 
+            const wallH = 130; 
+            const thick = 15;
+            
+            const pBottom = Bodies.rectangle(cx, height / 2, panWidth, thick, { render: { fillStyle: '#374151' } });
+            const pLeft = Bodies.rectangle(cx - panWidth/2 + thick/2, height/2 - wallH/2, thick, wallH, { render: { fillStyle: '#374151' } });
+            const pRight = Bodies.rectangle(cx + panWidth/2 - thick/2, height/2 - wallH/2, thick, wallH, { render: { fillStyle: '#374151' } });
+            
+            scalePan = Body.create({
+                parts: [pBottom, pLeft, pRight],
+                friction: 0.8,
+                restitution: 0.05
+            });
+            
+            Body.setMass(scalePan, 200);
+            Body.setInertia(scalePan, Infinity);
+
+            const anchor = Bodies.rectangle(cx, 0, 10, 10, { isStatic: true, render: { visible: false } });
+
+            scaleSpring = Constraint.create({
+                bodyA: anchor,
+                pointA: { x: 0, y: 0 },
+                bodyB: scalePan,
+                pointB: { x: 0, y: 0 },
+                stiffness: 0.15,
+                damping: 0.9,
+                length: height * 0.40,
+                render: { 
+                    visible: true, 
+                    type: 'line',
+                    strokeStyle: '#9ca3af',
+                    lineWidth: 4
+                }
+            });
+
+            const optWall = { isStatic: true, render: { visible: false }, friction: 0 };
+            const leftWall = Bodies.rectangle(-25, height/2, 50, height * 2, optWall);
+            const rightWall = Bodies.rectangle(width + 25, height/2, 50, height * 2, optWall);
+            const stopperFloor = Bodies.rectangle(cx, height * 0.88, width, 50, optWall);
+
+            Events.on(engine, 'beforeUpdate', function() {
+                if (scalePan) {
+                    Body.setPosition(scalePan, { x: cx, y: scalePan.position.y });
+                    Body.setVelocity(scalePan, { x: 0, y: scalePan.velocity.y });
+                }
+            });
+
+            Composite.add(world, [anchor, scalePan, scaleSpring, leftWall, rightWall, stopperFloor]);
+
+            Render.run(render);
+            runner = Runner.create();
+            Runner.run(runner, engine);
+        }
+
+        function spawnPhysicsCube(x, y, weight, color) {
+            let size, mass, density;
+            const fillRgba = hexToRgba(color, 0.4);
+
+            // Ajuste dinámico de tamaño y masa según el peso (Caso 5 tiene pesos más altos)
+            if (weight === 0) {
+                size = 20; 
+                mass = 0.05; 
+                density = 0.001;
+            } else {
+                size = Math.max(35, (weight / 20) * 75); // Los bloques de 16 y 10 serán los más grandes
+                mass = weight;
+                density = 0.05;
+            }
+
+            const block = Matter.Bodies.rectangle(x, y, size, size, {
+                friction: 0.8,
+                restitution: 0.1,
+                density: density,
+                render: {
+                    fillStyle: fillRgba,
+                    strokeStyle: color,
+                    lineWidth: 3
+                }
+            });
+            
+            Matter.Body.setMass(block, mass);
+            Matter.Composite.add(world, block);
+        }
+
+        function processProgress(weight) {
+            blocksDropped++;
+            totalWeight += weight; 
+            
+            const percentage = Math.min(totalWeight, 100);
+            const fillEl = document.getElementById('thermo-fill');
+            
+            if (fillEl) {
+                fillEl.style.height = `${percentage}%`;
+                
+                let currentCat = VERDICT_CATEGORIES[0];
+                for (let cat of VERDICT_CATEGORIES) {
+                    if (percentage >= cat.min && percentage <= cat.max) {
+                        currentCat = cat;
+                        break;
+                    }
+                }
+                if (percentage >= 100) currentCat = VERDICT_CATEGORIES[VERDICT_CATEGORIES.length - 1];
+                fillEl.style.backgroundColor = currentCat.color;
+            }
+
+            if (scaleSpring && canvasContainer) {
+                const height = canvasContainer.clientHeight || 400;
+                const baseLength = height * 0.40; 
+                const maxLength = height * 0.80;
+                
+                const newLength = baseLength + ((percentage / 100) * (maxLength - baseLength));
+                scaleSpring.length = newLength;
+            }
+
+            if (blocksDropped === 5) {
+                setTimeout(() => {
+                    let finalCat = VERDICT_CATEGORIES[0];
+                    for (let cat of VERDICT_CATEGORIES) {
+                        if (totalWeight >= cat.min && totalWeight <= cat.max) finalCat = cat;
+                    }
+                    if (totalWeight >= 100) finalCat = VERDICT_CATEGORIES[VERDICT_CATEGORIES.length - 1];
+                    
+                    showVerdict(finalCat);
+                }, 2000);
+            }
+        }
+
+        function showVerdict(category) {
+            const finalScore10 = (totalWeight / 10).toFixed(1);
+            
+            document.getElementById('verdict-score').innerText = `${finalScore10} / 10.0`;
+            document.getElementById('verdict-score').style.color = category.color;
+            
+            document.getElementById('verdict-title').innerText = category.title;
+            document.getElementById('verdict-title').style.color = category.color;
+            
+            document.getElementById('verdict-desc').innerText = category.desc;
+            document.getElementById('verdict-card').style.borderColor = category.color;
+            
+            document.getElementById('verdict-modal').classList.add('active');
+        }
+
+        window.onload = () => {
+            resetScale();
+        };
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                initPhysics();
+                if (blocksDropped > 0 && blocksDropped < 5) {
+                    resetScale();
+                }
+            }, 300);
+        });
+    </script>
+</body>
+</html>
