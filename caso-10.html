@@ -426,10 +426,10 @@
                 };
 
                 const cleanup = () => {
-                    document.removeEventListener('pointermove', handleDragMove);
-                    document.removeEventListener('pointerup', handleDragEnd);
-                    document.removeEventListener('touchmove', handleDragMove);
-                    document.removeEventListener('touchend', handleDragEnd);
+                    document.removeEventListener('pointermove', onPointerMove);
+                    document.removeEventListener('pointerup', onPointerUp);
+                    document.removeEventListener('touchmove', onPointerMove);
+                    document.removeEventListener('touchend', onPointerUp);
                 };
 
                 document.addEventListener('pointermove', onPointerMove, {passive: false});
