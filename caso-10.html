@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Balanza de la Verdad - Caso 5</title>
+    <title>La Balanza de la Verdad - Caso 10</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -208,7 +208,7 @@
         
         <header class="flex items-center justify-between pb-2 mb-2 border-b border-brand-teal/20 flex-shrink-0">
             <div>
-                <h1 class="font-serif text-2xl md:text-3xl text-brand-dark leading-tight" id="active-case-title">Caso #5</h1>
+                <h1 class="font-serif text-2xl md:text-3xl text-brand-dark leading-tight" id="active-case-title">Caso #10</h1>
                 <p class="font-sans text-brand-teal text-xs md:text-sm font-medium opacity-80">Evaluación dinámica de la evidencia</p>
             </div>
             <div class="flex items-center gap-2">
@@ -270,7 +270,7 @@
     <div id="verdict-modal" class="modal-overlay fixed inset-0 bg-brand-light/95 flex items-center justify-center p-4">
         <div class="modal-content bg-white border-t-8 border-brand-dark rounded-xl shadow-2xl p-6 md:p-8 max-w-xl w-full text-center relative" id="verdict-card">
             
-            <span class="text-brand-teal opacity-70 font-bold tracking-widest uppercase text-[10px] md:text-xs mb-2 block">Resultado Final del Caso 5</span>
+            <span class="text-brand-teal opacity-70 font-bold tracking-widest uppercase text-[10px] md:text-xs mb-2 block">Resultado Final del Caso 10</span>
             <h2 id="verdict-title" class="font-serif text-3xl md:text-5xl text-brand-dark mb-4 leading-tight">Calculando...</h2>
             
             <div class="inline-flex items-center bg-brand-light border border-brand-teal/20 rounded-full px-4 py-2 mb-4 shadow-inner">
@@ -300,26 +300,26 @@
             { level: 4, title: "Determinado", min: 78, max: 100, color: "#1C1C1C", desc: "Puntaje alto que confirma el hallazgo fáctica y documentalmente verídico bajo estándares internacionales." }
         ];
 
-        const CASE_5_DATA = [
+        const CASE_10_DATA = [
             {
-                id: "c5_1", category: "1. Conducta", color: "#1C1C1C", weight: 16,
-                abstractHtml: "Se investiga la alteración de documentos públicos y abuso de funciones para modificar las reglas de evaluación de una selección de gran cuantía. Existe certeza probatoria mediante peritaje forense informático de la Procuraduría, que demostró el desfase en los metadatos de carga de las condiciones. El proceso fue cancelado preventivamente antes de firmar contrato o desviar fondos."
+                id: "c10_1", category: "1. Conducta", color: "#1C1C1C", weight: 7,
+                abstractHtml: "CCE estructuró un Acuerdo Marco para ciberseguridad. El Libro de la Verdad alegó un \"amarre\" de $300.000 millones, pero el presupuesto de cero pesos era reglamentario para catálogos y la firma posterior. No hay dolo probado de funcionarios, quedando en fase de suspensión preventiva precontractual."
             },
             {
-                id: "c5_2", category: "2. Contratación", color: "#3B1F82", weight: 8,
-                abstractHtml: "Se detectó la manipulación de las condiciones precontractuales mediante una adenda extemporánea que impuso requisitos financieros restrictivos, limitando la libre competencia del mercado. Debido a la oportuna suspensión preventiva y posterior resolución de cancelación definitiva del proceso de selección, no se firmó ningún contrato ni se ejecutó obra pública alguna."
+                id: "c10_2", category: "2. Contratación", color: "#3B1F82", weight: 6,
+                abstractHtml: "Se identificaron \"pliegos sastre\" con más de 50 requerimientos técnicos detallados y exigencia de cobertura nacional que limitaban la participación de Pymes. No obstante, al suspenderse el proceso antes de recibir ofertas, no hubo adjudicación direccionada, cartelización ni ejecución de contratos."
             },
             {
-                id: "c5_3", category: "3. Redes", color: "#470DBA", weight: 7,
-                abstractHtml: "Se evidenció la presión directa del director de la entidad, quien actuó de forma unipersonal desoyendo activamente las objeciones formales de los equipos técnicos y jurídicos de planta. Pese a identificarse el actuar de este funcionario con calidad de Persona Políticamente Expuesta (PEP), las pruebas documentales no demuestran vínculos comerciales o familiares con firmas proponentes."
+                id: "c10_3", category: "3. Redes", color: "#470DBA", weight: 0,
+                abstractHtml: "Inexistente. No se documenta la intervención de Personas Políticamente Expuestas (PEP), clanes de poder o nóminas clientelares direccionando el proceso. La única alerta provino de una denuncia anónima sobre colusión privada entre oferentes, sin complicidad gubernamental demostrada en el expediente."
             },
             {
-                id: "c5_4", category: "4. Finanzas", color: "#0D4040", weight: 0,
-                abstractHtml: "La dimensión no registra alertas debido a que el proceso de selección fue cancelado antes de su adjudicación. Al no haberse consolidado un contratista privado ni haberse ejecutado pagos, desembolsos o giros presupuestales, no existen consorcios, empresas fachada, ni flujos transaccionales bajo sospecha en este hallazgo."
+                id: "c10_4", category: "4. Finanzas", color: "#0D4040", weight: 0,
+                abstractHtml: "Inaplicable. Al cancelarse el proceso de selección en fase previa, no se incorporaron consorcios, firmas fachada ni sociedades instrumentales de papel. Tampoco existieron transacciones, giros, desembolsos del erario público ni alertas de triangulación financiera o lavado de activos."
             },
             {
-                id: "c5_5", category: "5. Control", color: "#3B1F82", weight: 10,
-                abstractHtml: "El portal transaccional SECOP II fue manipulado al cargar una adenda con metadatos alterados temporalmente, eludiendo las advertencias por escrito de los subdirectores de planta. Sin embargo, las salvaguardas internas reaccionaron con éxito posterior: la junta directiva removió al director del cargo y la nueva administración canceló definitivamente el proceso para proteger el erario."
+                id: "c10_5", category: "5. Control", color: "#3B1F82", weight: 0,
+                abstractHtml: "Control preventivo óptimo. Todos los documentos y observaciones se publicaron transparentemente en SECOP II. Tras recibir observaciones y una alerta preventiva de la Procuraduría (solicitada autónomamente por la propia CCE), la entidad suspendió de inmediato el proceso para dar plenas garantías."
             }
         ];
 
@@ -356,7 +356,7 @@
         function buildInventory() {
             inventoryZone.innerHTML = ''; 
             
-            CASE_5_DATA.forEach((item) => {
+            CASE_10_DATA.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'evidence-card bg-white rounded shadow-sm border border-brand-teal/10 flex-1 min-w-[70px] min-h-[75px] md:min-h-[95px] relative';
                 card.style.borderLeftColor = item.color;
@@ -437,7 +437,7 @@
         }
 
         function showAbstract(id) {
-            const data = CASE_5_DATA.find(i => i.id === id);
+            const data = CASE_10_DATA.find(i => i.id === id);
             if(!data) return;
 
             document.getElementById('abstract-category').innerText = data.category;
@@ -589,7 +589,6 @@
                 }
             }
 
-            // Aumentamos iteraciones para evitar que los bloques atraviesen el suelo
             engine = Engine.create();
             engine.positionIterations = 12;
             engine.velocityIterations = 10;
@@ -612,8 +611,8 @@
 
             const cx = width / 2;
             const panWidth = Math.min(320, width * 0.85); 
-            const wallH = 180; // Paredes de la balanza más altas
-            const thick = 25;  // Paredes de la balanza más gruesas
+            const wallH = 180;
+            const thick = 25;
             
             const pBottom = Bodies.rectangle(cx, height / 2, panWidth, thick, { render: { fillStyle: '#1C1C1C' } });
             const pLeft = Bodies.rectangle(cx - panWidth/2 + thick/2, height/2 - wallH/2, thick, wallH, { render: { fillStyle: '#1C1C1C' } });
@@ -621,8 +620,8 @@
             
             scalePan = Body.create({
                 parts: [pBottom, pLeft, pRight],
-                friction: 1,      // Máxima fricción
-                restitution: 0    // Rebote nulo
+                friction: 1,
+                restitution: 0
             });
             
             Body.setMass(scalePan, 200);
@@ -674,15 +673,15 @@
                 mass = 0.05; 
                 density = 0.001;
             } else {
-                size = Math.max(35, (weight / 20) * 75); 
+                size = Math.max(35, (weight / 20) * 65); 
                 mass = weight;
                 density = 0.05;
             }
 
             const block = Matter.Bodies.rectangle(x, y, size, size, {
-                friction: 1,          // Máxima fricción
-                frictionAir: 0.02,    // Fricción de aire para ralentizar la caída
-                restitution: 0,       // Sin rebote
+                friction: 1,
+                frictionAir: 0.02,
+                restitution: 0,
                 density: density,
                 render: {
                     fillStyle: fillRgba,

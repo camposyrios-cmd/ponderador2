@@ -6,7 +6,7 @@
     <title>La Balanza de la Verdad - Inicio</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -14,13 +14,16 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
-                        serif: ['Merriweather', 'serif'],
+                        serif: ['PinkSunset', 'serif'],
                     },
                     colors: {
                         brand: {
-                            dark: '#111827',
-                            light: '#f9f8f6',
-                            muted: '#6b7280'
+                            dark: '#1C1C1C',
+                            light: '#F0F2DF',
+                            primary: '#3B1F82',
+                            accent: '#470DBA',
+                            teal: '#0D4040',
+                            muted: '#0D4040'
                         }
                     }
                 }
@@ -29,8 +32,25 @@
     </script>
 
     <style>
+        @font-face {
+            font-family: 'PinkSunset';
+            src: url('./PinkSunset/Web-TT/PinkSunset-Regular.woff2') format('woff2'),
+                 url('./PinkSunset/Web-TT/PinkSunset-Regular.woff') format('woff'),
+                 url('./PinkSunset/Web-TT/PinkSunset-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'PinkSunset';
+            src: url('./PinkSunset/Web-TT/PinkSunset-Italic.woff2') format('woff2'),
+                 url('./PinkSunset/Web-TT/PinkSunset-Italic.woff') format('woff'),
+                 url('./PinkSunset/Web-TT/PinkSunset-Italic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: italic;
+        }
+
         :root {
-            --bg-color: #f9f8f6;
+            --bg-color: #F0F2DF;
         }
 
         body, html {
@@ -41,57 +61,120 @@
             background-color: var(--bg-color);
             overflow: hidden; 
         }
+
+        /* Animación de desvanecimiento para el logo */
+        @keyframes fadeInLogo {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-logo {
+            animation: fadeInLogo 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .modal-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-out;
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
     </style>
 </head>
-<body class="h-screen w-screen flex items-center justify-center p-2 md:p-6 bg-[#f9f8f6]">
+<body class="h-screen w-screen flex items-center justify-center p-2 md:p-6 bg-brand-light">
     
-    <div class="w-full max-w-6xl h-full bg-white rounded-3xl shadow-2xl border border-gray-100 flex flex-col p-4 md:p-8">
+    <div class="w-full max-w-6xl h-full bg-white rounded-3xl shadow-2xl border border-brand-teal/10 flex flex-col p-4 md:p-8 relative overflow-hidden">
         
-        <!-- Encabezado -->
         <div class="flex-shrink-0 text-center mb-4 md:mb-8 mt-2">
-            <h1 class="font-serif text-2xl md:text-5xl font-black text-brand-dark mb-2 tracking-tight leading-tight">
+            <h1 class="font-serif text-3xl md:text-5xl font-black text-brand-dark mb-2 tracking-tight leading-tight">
                 ¿Qué tanta corrupción denuncia el libro de la verdad?
             </h1>
-            <p class="font-sans text-brand-muted text-sm md:text-base max-w-2xl mx-auto uppercase tracking-wider font-semibold">
-                Elige un caso:
+            <p id="grid-subtitle" class="font-sans text-brand-teal text-sm md:text-base max-w-2xl mx-auto uppercase tracking-wider font-semibold opacity-0 transition-opacity duration-500 hidden">
+                Elige un caso
             </p>
         </div>
 
-        <!-- Matriz de Botones -->
-        <div class="flex-1 min-h-0 w-full flex items-center justify-center">
+        <!-- Vista 1: Logo y Botones de Inicio -->
+        <div id="intro-view" class="flex-1 flex flex-col items-center justify-center gap-4 md:gap-5 transition-all duration-500 opacity-100">
             
-            <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-4 w-full h-full max-h-[70vh] content-center">
+            <!-- Logo ColombiaCheck con efecto fade-in -->
+            <img src="logo.png" alt="ColombiaCheck" class="h-12 md:h-16 w-auto object-contain mb-3 md:mb-6 fade-in-logo" />
+
+            <button onclick="openInstructions()" class="bg-brand-light text-brand-teal border border-brand-teal/20 hover:bg-white hover:shadow-sm font-semibold py-2.5 px-8 rounded-xl transition-all text-sm md:text-base cursor-pointer">
+                Instrucciones
+            </button>
+            
+            <button onclick="showGrid()" class="bg-brand-primary text-white text-lg md:text-xl font-bold py-4 px-12 rounded-xl hover:bg-brand-accent transition-all shadow-md transform hover:-translate-y-1 cursor-pointer">
+                Ver casos
+            </button>
+        </div>
+
+        <!-- Vista 2: Matriz de Botones -->
+        <div id="cases-grid" class="flex-1 min-h-0 w-full items-center justify-center absolute inset-0 top-[120px] md:top-[160px] hidden opacity-0 transition-opacity duration-500 p-4 md:p-8">
+            <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-4 w-full h-full max-h-[70vh] content-start md:content-center">
                 
                 <!-- Caso 1 (Activo) -->
-                <a href="caso-1.html" class="group relative flex items-center justify-center bg-[#f9f8f6] hover:bg-brand-dark border border-gray-200 hover:border-brand-dark rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
-                    <span class="font-sans text-xl md:text-3xl font-black text-brand-dark group-hover:text-white transition-colors">1</span>
+                <a href="caso-1.html" class="group relative flex items-center justify-center bg-brand-light hover:bg-brand-primary border border-brand-primary/20 hover:border-brand-primary rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
+                    <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">1</span>
                 </a>
 
-                <!-- Función generadora de botones inactivos -->
+                <!-- Caso 2 (Activo) -->
+                <a href="caso-2.html" class="group relative flex items-center justify-center bg-brand-light hover:bg-brand-primary border border-brand-primary/20 hover:border-brand-primary rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
+                    <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">2</span>
+                </a>
+
+                <!-- Casos 3 y 4 (Inactivos) -->
                 <script>
                     const renderInactiveButton = (num) => `
-                        <div class="group relative flex items-center justify-center bg-gray-50 border border-gray-100 rounded-xl cursor-not-allowed opacity-50 hover:opacity-100 transition-opacity duration-300 aspect-square">
-                            <span class="font-sans text-xl md:text-3xl font-bold text-gray-400">${num}</span>
-                            <!-- Etiqueta emergente (Tooltip) -->
-                            <div class="absolute -top-8 md:-top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-[10px] md:text-xs font-sans px-2 py-1 md:px-3 md:py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap shadow-md">
+                        <div class="group relative flex items-center justify-center bg-white border border-brand-teal/10 rounded-xl cursor-not-allowed opacity-50 hover:opacity-100 transition-opacity duration-300 aspect-square">
+                            <span class="font-serif text-2xl md:text-4xl text-brand-teal opacity-40">${num}</span>
+                            <div class="absolute -top-8 md:-top-10 left-1/2 transform -translate-x-1/2 bg-brand-dark text-white text-[10px] md:text-xs font-sans px-2 py-1 md:px-3 md:py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap shadow-md">
                                 Próximamente
                             </div>
                         </div>
                     `;
 
-                    document.write(renderInactiveButton(2));
                     document.write(renderInactiveButton(3));
                     document.write(renderInactiveButton(4));
                 </script>
 
                 <!-- Caso 5 (Activo) -->
-                <a href="caso-5.html" class="group relative flex items-center justify-center bg-[#f9f8f6] hover:bg-brand-dark border border-gray-200 hover:border-brand-dark rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
-                    <span class="font-sans text-xl md:text-3xl font-black text-brand-dark group-hover:text-white transition-colors">5</span>
+                <a href="caso-5.html" class="group relative flex items-center justify-center bg-brand-light hover:bg-brand-accent border border-brand-accent/20 hover:border-brand-accent rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
+                    <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">5</span>
                 </a>
 
-                <!-- Casos 6 al 23 (Inactivos inyectados con el script para mantener el código limpio) -->
+                <!-- Casos 6 al 9 (Inactivos) -->
                 <script>
-                    for(let i = 6; i <= 23; i++) {
+                    for(let i = 6; i <= 9; i++) {
+                        document.write(renderInactiveButton(i));
+                    }
+                </script>
+
+                <!-- Caso 10 (Activo) -->
+                <a href="caso-10.html" class="group relative flex items-center justify-center bg-brand-light hover:bg-brand-primary border border-brand-primary/20 hover:border-brand-primary rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
+                    <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">10</span>
+                </a>
+
+                <!-- Casos 11 al 23 (Inactivos) -->
+                <script>
+                    for(let i = 11; i <= 23; i++) {
                         document.write(renderInactiveButton(i));
                     }
                 </script>
@@ -99,5 +182,60 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Instrucciones -->
+    <div id="instructions-modal" class="modal-overlay fixed inset-0 bg-brand-dark/80 flex items-center justify-center p-4">
+        <div class="modal-content bg-white rounded-xl shadow-2xl max-w-lg w-full relative overflow-hidden">
+            <div class="h-2 w-full bg-brand-primary"></div>
+            <div class="p-6 md:p-8">
+                <h3 class="font-serif text-2xl md:text-3xl text-brand-dark mb-5 text-center">Instrucciones de uso</h3>
+                
+                <ol class="list-decimal list-outside ml-4 md:ml-6 space-y-4 text-sm md:text-base text-brand-teal opacity-90 font-sans leading-relaxed">
+                    <li class="pl-2"><strong>Elige un caso.</strong></li>
+                    <li class="pl-2">La evidencia se encuentra en la columna izquierda. Haz doble clic sobre una tarjeta para leer su contexto y justificación técnica.</li>
+                    <li class="pl-2"><strong>Pesa la evidencia:</strong> Mantén presionado y arrastra los bloques hacia la balanza para sumar su peso probatorio.</li>
+                    <li class="pl-2"><strong>Obtén el resultado:</strong> Al colocar las cinco evidencias, el termómetro calculará un puntaje automático que define el nivel de riesgo de corrupción.</li>
+                </ol>
+
+                <div class="mt-8 flex justify-center">
+                    <button onclick="closeInstructions()" class="bg-brand-light border border-brand-teal/20 text-brand-teal font-semibold py-2.5 px-8 rounded-lg hover:bg-white hover:text-brand-dark transition-colors shadow-sm text-sm md:text-base cursor-pointer">
+                        Entendido
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showGrid() {
+            const introView = document.getElementById('intro-view');
+            const casesGrid = document.getElementById('cases-grid');
+            const subtitle = document.getElementById('grid-subtitle');
+
+            introView.style.opacity = '0';
+            
+            setTimeout(() => {
+                introView.classList.add('hidden');
+                introView.classList.remove('flex');
+                
+                casesGrid.classList.remove('hidden');
+                casesGrid.classList.add('flex');
+                subtitle.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    casesGrid.style.opacity = '1';
+                    subtitle.style.opacity = '0.8';
+                }, 50);
+            }, 300);
+        }
+
+        function openInstructions() {
+            document.getElementById('instructions-modal').classList.add('active');
+        }
+
+        function closeInstructions() {
+            document.getElementById('instructions-modal').classList.remove('active');
+        }
+    </script>
 </body>
 </html>
