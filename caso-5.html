@@ -86,6 +86,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            container-type: inline-size;
         }
 
         .evidence-card:active {
@@ -225,7 +226,7 @@
 
         <div class="flex flex-col md:flex-row gap-2 md:gap-4 flex-1 min-h-0 w-full mb-2">
             
-            <div class="w-full md:w-1/6 lg:w-1/6 flex flex-row md:flex-col gap-2 p-1 relative flex-shrink-0" id="inventory-zone">
+            <div class="w-full md:w-32 lg:w-36 flex-shrink-0 flex flex-row md:flex-col gap-2 p-1 relative" id="inventory-zone">
                 <!-- Tarjetas inyectadas por JS -->
             </div>
 
@@ -368,8 +369,12 @@
                 const shortTitle = item.category.split('.')[1].trim(); 
                 
                 card.innerHTML = `
-                    <div class="p-2 md:p-3 h-full flex flex-col justify-between overflow-hidden">
-                        <div class="text-[10px] md:text-xs font-extrabold uppercase tracking-wide w-full text-justify break-words hyphens-auto leading-tight" style="color: ${item.color}; word-break: break-word;" title="${item.category}">${shortTitle}</div>
+                    <div class="p-2 h-full flex flex-col justify-between overflow-hidden">
+                        <div class="font-black uppercase tracking-tight w-full text-center whitespace-nowrap overflow-hidden" 
+                             style="color: ${item.color}; font-size: clamp(8px, 8.5cqw, 12px);" 
+                             title="${item.category}">
+                            ${shortTitle}
+                        </div>
                         <div class="text-[9px] md:text-[10px] text-brand-teal opacity-60 font-medium text-center flex items-center justify-center gap-1 mt-1 bg-brand-light py-1 rounded w-full">
                             <span>Doble clic</span>
                         </div>
@@ -589,7 +594,6 @@
                 }
             }
 
-            // Aumentamos iteraciones para evitar que los bloques atraviesen el suelo
             engine = Engine.create();
             engine.positionIterations = 12;
             engine.velocityIterations = 10;
@@ -612,8 +616,8 @@
 
             const cx = width / 2;
             const panWidth = Math.min(320, width * 0.85); 
-            const wallH = 180; // Paredes de la balanza más altas
-            const thick = 25;  // Paredes de la balanza más gruesas
+            const wallH = 180;
+            const thick = 25;
             
             const pBottom = Bodies.rectangle(cx, height / 2, panWidth, thick, { render: { fillStyle: '#1C1C1C' } });
             const pLeft = Bodies.rectangle(cx - panWidth/2 + thick/2, height/2 - wallH/2, thick, wallH, { render: { fillStyle: '#1C1C1C' } });
@@ -621,8 +625,8 @@
             
             scalePan = Body.create({
                 parts: [pBottom, pLeft, pRight],
-                friction: 1,      // Máxima fricción
-                restitution: 0    // Rebote nulo
+                friction: 1,
+                restitution: 0
             });
             
             Body.setMass(scalePan, 200);
@@ -680,9 +684,9 @@
             }
 
             const block = Matter.Bodies.rectangle(x, y, size, size, {
-                friction: 1,          // Máxima fricción
-                frictionAir: 0.02,    // Fricción de aire para ralentizar la caída
-                restitution: 0,       // Sin rebote
+                friction: 1,
+                frictionAir: 0.02,
+                restitution: 0,
                 density: density,
                 render: {
                     fillStyle: fillRgba,
