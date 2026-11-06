@@ -140,6 +140,11 @@
                     <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">2</span>
                 </a>
 
+                <!-- Caso 3 (Activo) -->
+                <a href="caso-3.html" class="group relative flex items-center justify-center bg-brand-light hover:bg-brand-primary border border-brand-primary/20 hover:border-brand-primary rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
+                    <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">3</span>
+                </a>
+
                 <!-- Función generadora de botones inactivos -->
                 <script>
                     const renderInactiveButton = (num) => `
@@ -151,8 +156,7 @@
                         </div>
                     `;
 
-                    // Casos 3 y 4 (Inactivos)
-                    document.write(renderInactiveButton(3));
+                    // Caso 4 (Inactivo)
                     document.write(renderInactiveButton(4));
                 </script>
 
@@ -178,17 +182,15 @@
                     <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">11</span>
                 </a>
 
-                <!-- Caso 12 (Activo) -->
-                <a href="caso-12.html" class="group relative flex items-center justify-center bg-brand-light hover:bg-brand-primary border border-brand-primary/20 hover:border-brand-primary rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
-                    <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">12</span>
-                </a>
-
-                <!-- Casos 13 al 23 (Inactivos) -->
+                <!-- Casos 12 al 23 (Inactivos - Caso 12 desactivado) -->
                 <script>
-                    for(let i = 13; i <= 23; i++) {
+                    for(let i = 12; i <= 23; i++) {
                         document.write(renderInactiveButton(i));
                     }
                 </script>
+
+            </div>
+        </div>
 
             </div>
         </div>
