@@ -126,7 +126,7 @@
             </button>
         </div>
 
-        <!-- Vista 2: Matriz de Botones -->
+<!-- Vista 2: Matriz de Botones -->
         <div id="cases-grid" class="flex-1 min-h-0 w-full items-center justify-center absolute inset-0 top-[120px] md:top-[160px] hidden opacity-0 transition-opacity duration-500 p-4 md:p-8">
             <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-4 w-full h-full max-h-[70vh] content-start md:content-center">
                 
@@ -165,12 +165,22 @@
                     <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">5</span>
                 </a>
 
-                <!-- Casos 6 al 9 (Inactivos) -->
+                <!-- Caso 6 (Activo) -->
+                <a href="caso-6.html" class="group relative flex items-center justify-center bg-brand-light hover:bg-brand-accent border border-brand-accent/20 hover:border-brand-accent rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
+                    <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">6</span>
+                </a>
+
+                <!-- Casos 7 y 8 (Inactivos) -->
                 <script>
-                    for(let i = 6; i <= 9; i++) {
+                    for(let i = 7; i <= 8; i++) {
                         document.write(renderInactiveButton(i));
                     }
                 </script>
+
+                <!-- Caso 9 (Activo) -->
+                <a href="caso-9.html" class="group relative flex items-center justify-center bg-brand-light hover:bg-brand-primary border border-brand-primary/20 hover:border-brand-primary rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
+                    <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">9</span>
+                </a>
 
                 <!-- Caso 10 (Activo) -->
                 <a href="caso-10.html" class="group relative flex items-center justify-center bg-brand-light hover:bg-brand-primary border border-brand-primary/20 hover:border-brand-primary rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-1 aspect-square">
@@ -182,15 +192,12 @@
                     <span class="font-serif text-2xl md:text-4xl text-brand-dark group-hover:text-white transition-colors">11</span>
                 </a>
 
-                <!-- Casos 12 al 23 (Inactivos - Caso 12 desactivado) -->
+                <!-- Casos 12 al 23 (Inactivos) -->
                 <script>
                     for(let i = 12; i <= 23; i++) {
                         document.write(renderInactiveButton(i));
                     }
                 </script>
-
-            </div>
-        </div>
 
             </div>
         </div>
